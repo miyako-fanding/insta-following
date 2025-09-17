@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Following Extractor - Control Panel</title>
+    <title>Instagram 팔로잉 추출기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -211,9 +211,9 @@
         // --- Event Listeners and Functions ---
         copyScriptBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(scraperScriptEl.value).then(() => {
-                copyScriptBtn.textContent = '[복사 완료!]';
+                copyScriptBtn.textContent = '복사 완료!';
                 setTimeout(() => {
-                    copyScriptBtn.textContent = '[복사하기]';
+                    copyScriptBtn.textContent = '복사하기';
                 }, 2000);
             }).catch(err => {
                 console.error('클립보드 복사 실패:', err);
