@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Following Extractor - Control Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .step-number {
+            background-color: #3b82f6; /* bg-blue-600 */
+            color: white;
+            border-radius: 9999px; /* rounded-full */
+            width: 2rem; /* w-8 */
+            height: 2rem; /* h-8 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        textarea {
+            -webkit-box-shadow: none;
+            -moz-box-shadow: none;
+            box-shadow: none;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-4xl mx-auto">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-6 md:p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-white">인스타그램 팔로잉 추출기</h1>
+                <p class="text-gray-400 mt-2">아래 안내에 따라 팔로잉 목록을 추출하세요.</p>
+            </div>
+
+            <!-- Instructions Section -->
+            <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="step-number">1</div>
+                    <div>
+                        <h3 class="font-semibold text-lg">인스타그램 접속 및 팔로잉 목록 열기</h3>
+                        <p class="text-gray-400">먼저, <a href="https://www.instagram.com" target="_blank" class="text-blue-400 hover:underline">인스타그램</a>에 로그인하고, 분석할 계정의 팔로잉 목록 팝업창을 열어주세요.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="step-number">2</div>
+                    <div>
+                        <h3 class="font-semibold text-lg">개발자 도구(콘솔) 열기</h3>
+                        <p class="text-gray-400">키보드에서 <kbd class="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">F12</kbd> 키를 눌러 개발자 도구를 열고, <span class="font-bold text-yellow-400">Console(콘솔)</span> 탭을 클릭하세요.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="step-number">3</div>
+                    <div>
+                        <h3 class="font-semibold text-lg">스크립트 복사 및 실행 (v11 - Final)</h3>
+                        <p class="text-gray-400">아래 텍스트 박스의 <span class="font-bold text-green-400">최종 코드(v11)</span>를 전체 복사하여 콘솔 창에 붙여넣고 <kbd class="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Enter</kbd> 키를 누르세요.</p>
+                        <textarea id="scraperScript" rows="5" class="w-full bg-gray-900 text-green-400 font-mono text-sm p-3 mt-2 rounded-lg border border-gray-600" readonly></textarea>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="step-number">4</div>
+                    <div>
+                        <h3 class="font-semibold text-lg">결과 데이터 복사 및 붙여넣기</h3>
+                        <p class="text-gray-400">스크립트가 완료되면 콘솔에 결과 데이터가 출력됩니다. 콘솔에 출력된 결과를 클릭한 후 <kbd class="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Ctrl+A</kbd> (전체 선택) → <kbd class="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Ctrl+C</kbd> (복사) 하여 아래 텍스트 박스에 붙여넣고 '결과 표시' 버튼을 누르세요.</p>
+                        <p class="text-yellow-400 text-sm mt-1">※ 콘솔 창에서 결과가 잘려 보여도, 전체 선택/복사하면 모든 데이터가 복사됩니다.</p>
+                        <textarea id="jsonData" rows="5" placeholder="콘솔에 출력된 결과 데이터를 여기에 붙여넣으세요..." class="w-full bg-gray-700 text-white p-3 mt-2 rounded-lg border border-gray-600"></textarea>
+                        <button id="displayResultsBtn" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">결과 표시</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error Section -->
+            <div id="error" class="text-center my-6 hidden p-4 bg-red-900/50 border border-red-500 rounded-lg">
+                <p id="errorText" class="text-red-300"></p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="hidden mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 bg-gray-700/50 p-4 rounded-lg">
+                    <h2 class="text-2xl font-semibold">분석 결과</h2>
+                    <div class="flex items-center gap-4 mt-4 md:mt-0">
+                        <p id="totalFollowing" class="text-lg font-medium text-gray-300"></p>
+                        <button id="downloadCsv" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-lg transition duration-300">CSV 다운로드</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto bg-gray-800 rounded-lg border border-gray-700 max-h-96">
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-400 uppercase bg-gray-700 sticky top-0">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">No.</th>
+                                <th scope="col" class="px-6 py-3">계정 (ID)</th>
+                                <th scope="col" class="px-6 py-3">이름</th>
+                                <th scope="col" class="px-6 py-3">프로필 링크</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Elements ---
+        const scraperScriptEl = document.getElementById('scraperScript');
+        const jsonDataEl = document.getElementById('jsonData');
+        const displayResultsBtn = document.getElementById('displayResultsBtn');
+        const errorDiv = document.getElementById('error');
+        const errorText = document.getElementById('errorText');
+        const resultsDiv = document.getElementById('results');
+        const totalFollowing = document.getElementById('totalFollowing');
+        const resultsTable = document.getElementById('resultsTable');
+        const downloadCsvBtn = document.getElementById('downloadCsv');
+
+        let extractedData = [];
+        
+        // --- UPDATED Scraper Script v11 (Final) ---
+        const scriptContent = `
+(async function() {
+    console.log('[MIYAKO LOVE] 스크립트 시작. 팔로잉 목록을 자동으로 스크롤합니다...');
+
+    const dialog = document.querySelector('div[role="dialog"]');
+    if (!dialog) {
+        alert('[MIYAKO LOVE] 팔로잉 팝업창을 찾을 수 없습니다.');
+        return;
+    }
+    
+    // Provided working logic to find the scroll box
+    let scrollBox = null;
+    const divs = dialog.querySelectorAll('div');
+    for (const div of divs) {
+        if (div.scrollHeight > div.clientHeight && div.querySelectorAll('a[href^="/"]').length > 5) {
+            scrollBox = div;
+            break;
+        }
+    }
+
+    if (!scrollBox) {
+        alert('[MIYAKO LOVE] 스크롤 박스를 찾을 수 없습니다.');
+        return;
+    }
+    
+    console.log('[MIYAKO LOVE] 스크롤 영역을 찾았습니다. 스크롤을 시작합니다.');
+    
+    const usernames = new Set();
+    let lastHeight = 0;
+    let sameHeightCount = 0;
+    const maxSameHeightCount = 5; // Using robust while loop
+
+    while (sameHeightCount < maxSameHeightCount) {
+        // Extract usernames during scroll from href attribute
+        scrollBox.querySelectorAll('a[href^="/"]').forEach(a => {
+            const href = a.getAttribute('href');
+            if (href && href.length > 2 && href.startsWith('/') && href.endsWith('/')) {
+                const username = href.slice(1, -1);
+                // Filter out non-user-profile links
+                if (!username.includes('/')) {
+                    usernames.add(username);
+                }
+            }
+        });
+
+        scrollBox.scrollTop = scrollBox.scrollHeight;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const currentHeight = scrollBox.scrollHeight;
+        if (currentHeight === lastHeight) {
+            sameHeightCount++;
+            console.log('[MIYAKO LOVE] 스크롤 높이가 변경되지 않았습니다. (' + sameHeightCount + '/' + maxSameHeightCount + ')');
+        } else {
+            sameHeightCount = 0;
+            console.log('[MIYAKO LOVE] 스크롤 중... 현재 ' + usernames.size + '명 발견했습니다.');
+        }
+        lastHeight = currentHeight;
+    }
+
+    console.log('[MIYAKO LOVE] 스크롤 완료. 이제 데이터를 추출합니다.');
+    
+    // Process the Set into the final list, removing fragile name extraction
+    const followingList = Array.from(usernames).map(username => ({
+        id: username,
+        name: '', // Name extraction removed for stability
+        link: 'https://www.instagram.com/' + username + '/'
+    }));
+
+    if (followingList.length === 0) {
+        alert('[MIYAKO LOVE] 데이터를 추출하지 못했습니다.');
+        return;
+    }
+
+    const finalCount = followingList.length;
+    console.log('[MIYAKO LOVE] 추출 완료! 총 ' + finalCount + '명의 팔로잉을 찾았습니다.');
+    const jsonResult = JSON.stringify(followingList, null, 2);
+    
+    console.log('%c⇓⇓⇓ 아래 박스 안의 내용을 전체 복사하여 제어판에 붙여넣으세요 ⇓⇓⇓', 'background: #059669; color: white; font-size: 14px; padding: 8px;');
+    console.log(jsonResult);
+    console.log('%c⇑⇑⇑ 위 'Copy' 버튼을 클릭하여 제어판에 붙여넣으세요 ⇑⇑⇑', 'background: #059669; color: white; font-size: 14px; padding: 8px;');
+
+})();
+        `.trim();
+        scraperScriptEl.value = scriptContent;
+
+        // --- Event Listeners and Functions ---
+        displayResultsBtn.addEventListener('click', () => {
+            const jsonText = jsonDataEl.value.trim();
+            if (!jsonText) {
+                showError('결과 데이터가 비어있습니다. 데이터를 먼저 붙여넣어 주세요.');
+                return;
+            }
+            try {
+                const data = JSON.parse(jsonText);
+                if (!Array.isArray(data)) {
+                    throw new Error('Data is not an array.');
+                }
+                extractedData = data;
+                displayResults(extractedData);
+                hideError();
+            } catch (e) {
+                showError('잘못된 데이터 형식입니다. 스크립트가 출력한 전체 내용을 복사했는지 확인해주세요.');
+                console.error(e);
+            }
+        });
+
+        downloadCsvBtn.addEventListener('click', () => {
+            if (extractedData.length === 0) {
+                alert('다운로드할 데이터가 없습니다.');
+                return;
+            }
+            const headers = ['No', 'ID', 'Name', 'ProfileLink'];
+            const csvContent = [
+                headers.join(','),
+                ...extractedData.map((item, index) => [
+                    index + 1,
+                    item.id,
+                    '"' + (item.name || '').replace(/"/g, '""') + '"',
+                    item.link
+                ].join(','))
+            ].join('\n');
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'instagram_following_list.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        function showError(message) {
+            resultsDiv.classList.add('hidden');
+            errorDiv.classList.remove('hidden');
+            errorText.innerText = message;
+        }
+
+        function hideError() {
+            errorDiv.classList.add('hidden');
+        }
+
+        function displayResults(data) {
+            totalFollowing.innerText = '총 팔로잉: ' + data.length + '명';
+            resultsTable.innerHTML = ''; 
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-600';
+                row.innerHTML = 
+                    '<td class="px-6 py-4">' + (index + 1) + '</td>' +
+                    '<td class="px-6 py-4 font-medium text-white">' + item.id + '</td>' +
+                    '<td class="px-6 py-4">' + (item.name || '') + '</td>' +
+                    '<td class="px-6 py-4">' +
+                        '<a href="' + item.link + '" target="_blank" class="text-blue-400 hover:underline">프로필 방문</a>' +
+                    '</td>';
+                resultsTable.appendChild(row);
+            });
+            resultsDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
+
